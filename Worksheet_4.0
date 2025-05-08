@@ -1,0 +1,24 @@
+"""
+# Question 1.a
+import os
+# clear screen
+os.system("clear")
+def course_enrollment(student_id, first_name, last_name, course_id, course_name):
+    print(f"Student {first_name} {last_name} (ID: {student_id}) has been registered for {course_name} (ID: {course_id}).")
+
+# Calling the function using positional arguments
+course_enrollment(1010, "Jack", "Hill", "CS101", "Introduction to Computer Science")
+"""
+# Question 1.b
+import os
+# clear screen
+os.system("clear")
+def course_enrollment(student_id, first_name, last_name, course_id, course_name, action='Echo'):
+    if action == 'Add':
+        print(f"Student {first_name} {last_name} (ID: {student_id}) has been added to {course_name} (ID: {course_id}).")
+    else:
+        print(f"Student {first_name} {last_name} (ID: {student_id}) has been registered for {course_name} (ID: {course_id}).")
+
+# Calling the function using a keyword argument
+course_enrollment(1001, "Alice", "Smith", "CS101", "Introduction to Computer Science", action='Add')
+course_enrollment(1002, "Bob", "Johnson", "MATH101", "Calculus I")
