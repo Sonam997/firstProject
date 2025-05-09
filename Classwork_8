@@ -22,24 +22,14 @@ print(f"My dog is {my_dog.age} years old.")
 my_dog.sit() 
 my_dog.roll_over()
 """
+"""
 import os
+import classes
 # clear screen
 os.system("clear")
 
-class Dog:
-   
-    def __init__(self, n, a):
-        self.name = n
-        self.age = a
-
-    def sit(self):
-        print(f"{self.name} is now sitting.")
-
-    def roll_over(self):
-        print(f"{self.name} rolled over!")
-
-my_dog = Dog('Willie', 6) 
-your_dog = Dog('Lucy', 3)
+my_dog = classes.Dog('Willie', 6) 
+your_dog = classes.Dog('Lucy', 3)
 
 print(f"My dog's name is {my_dog.name}.") 
 print(f"My dog is {my_dog.age} years old.") 
@@ -48,4 +38,31 @@ my_dog.sit()
 print(f"\nYour dog's name is {your_dog.name}.") 
 print(f"Your dog is {your_dog.age} years old.") 
 your_dog.sit()
+"""
+"""
+import os
+import classes
+os.system("clear")
+my_new_car = classes.Car('audi', 'a4', 2024)
+print(my_new_car.get_descriptive_name())
+"""
+"""
+import os
+import classes
+# clear screen
+os.system("clear")
+# Create an instance of Dog
+my_kid = classes.Kid()
+my_kid.speak()  # Inherited from Person
+my_kid.play()   # Defined in Kid
+"""
+import os
+import classes
+# clear screen
+os.system("clear")
+my_leaf = classes.ElectricCar('nissan', 'leaf', 2024)
+print(my_leaf.get_descriptive_name())
+my_leaf.describe_battery()
+
+
 
