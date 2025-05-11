@@ -9,6 +9,7 @@ def course_enrollment(student_id, first_name, last_name, course_id, course_name)
 # Calling the function using positional arguments
 course_enrollment(1010, "Jack", "Hill", "CS101", "Introduction to Computer Science")
 """
+"""
 # Question 1.b
 import os
 # clear screen
@@ -22,3 +23,105 @@ def course_enrollment(student_id, first_name, last_name, course_id, course_name,
 # Calling the function using a keyword argument
 course_enrollment(1001, "Alice", "Smith", "CS101", "Introduction to Computer Science", action='Add')
 course_enrollment(1002, "Bob", "Johnson", "MATH101", "Calculus I")
+"""
+"""
+import os
+# clear screen
+os.system("clear")
+#Question 2.a
+def student_course_list(student_id, first_name, last_name):
+    courses = []
+    # Collecting 4 courses
+    for i in range(4):  
+        course_id = input(f"Enter course ID for {i+1}: ")
+        courses.append(course_id)
+    semester = input("Enter semester: ")
+    year = input("Enter year: ")
+    print(f"{first_name} {last_name} (ID: {student_id}) has enrolled in: {', '.join(courses)} for {semester} {year}.")
+student_course_list(1003, "Charlie", "Brown")
+"""
+"""
+import os
+# clear screen
+os.system("clear")
+#Question 2.b
+def student_courses_to_dict(student_id, first_name, last_name, *courses):
+    course_dict = {}
+    for course in courses:
+        course_id, course_name = course
+        course_dict[course_id] = course_name
+    print(f"Student {first_name} {last_name} (ID: {student_id}) is enrolled in the following courses:")
+    for course_id, course_name in course_dict.items():
+        print(f"Course ID: {course_id}, Course Name: {course_name}")
+student_courses_to_dict(1003, "Charlie", "Brown", ("CS202", "Data Structures and Algorithms"), ("PHY101", "General Physics I"))
+"""
+"""
+import os
+import class_user
+# clear screen
+os.system("clear")
+# Session 6 
+# Call the describe_user and greet_user methods
+print(class_user.user1.describe_user())
+print(class_user.user1.greet_user())
+
+print(class_user.user2.describe_user())
+print(class_user.user2.greet_user())
+"""
+"""
+import os
+import class_user
+# clear screen
+os.system("clear")
+# Create an instance
+user = class_user.User("Charlie", "Brown")
+# Simulate login attempts
+user.increment_login_attempts()
+user.increment_login_attempts()
+
+print(f"Login attempts: {user.login_attempts}")  
+
+# Reset the login attempts
+user.reset_login_attempts()
+print(f"Login attempts after reset: {user.login_attempts}")
+"""
+"""
+import os
+import class_user
+# clear screen
+os.system("clear")
+# Create instances of Classroom
+classroom1 = class_user.Classroom("Computer Science Lab", "Building A", 30)
+classroom2 = class_user.Classroom("Physics Lab", "Building A", 20)
+
+# Call the methods
+print(classroom1.describe_classroom())
+print(classroom1.checksize_classroom(25))  # Example: 25 enrolled students
+
+print(classroom2.describe_classroom())
+print(classroom2.checksize_classroom(25))  # Example: 25 enrolled students 
+"""
+"""
+import os
+import class_user
+# clear screen
+os.system("clear")
+# Create an instance of Classroom
+classroom = class_user.Classroom("Math Class", "Building C", 40)
+
+# Set and update number of enrolled students
+classroom.set_number_enrolled(25)
+classroom.update_number_enrolled(30)
+
+# Print the audit log
+print(classroom.show_audit_log())
+"""
+import os
+import class_user
+# clear screen
+os.system("clear")
+# Create an instance of Equipment
+equipment_classroom = class_user.Equipment("Advanced Computing Lab", "Building D", 50, ["Projector", "Smartboard", "Laptops"])
+
+# Display devices in the classroom
+print(equipment_classroom.display_devices())
