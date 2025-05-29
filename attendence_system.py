@@ -1,0 +1,225 @@
+import tkinter as tk
+from tkinter import messagebox, ttk
+from datetime import datetime
+import os
+os.system("clear")
+
+# Predefined credentials for simplicity (optional enhancement in assignment)
+TEACHER_CREDENTIALS = {"username": "teacher", "password": "pass123"}
+# Format: {student_id: password}
+STUDENT_CREDENTIALS = {"123": "student123"} 
+class AttendanceSystem:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Student Attendance System")
+        self.current_user = None
+        self.current_role = None
+        self.setup_login_screen()
+
+    def setup_login_screen(self):
+        self.clear_window()
+        tk.Label(self.root, text="Student Attendance System", font=("Arial", 16)).pack(pady=10)
+        
+        tk.Label(self.root, text="Select Role:").pack()
+        role_var = tk.StringVar(value="Teacher")
+        tk.Radiobutton(self.root, text="Teacher", variable=role_var, value="Teacher").pack()
+        tk.Radiobutton(self.root, text="Student", variable=role_var, value="Student").pack()
+        
+        tk.Label(self.root, text="Username/ID:").pack()
+        username_entry = tk.Entry(self.root)
+        username_entry.pack()
+        
+        tk.Label(self.root, text="Password:").pack()
+        password_entry = tk.Entry(self.root, show="*")
+        password_entry.pack()
+        
+        tk.Button(self.root, text="Login", command=lambda: self.login(role_var.get(), username_entry.get(), password_entry.get())).pack(pady=10)
+
+    def clear_window(self):
+        for widget in self.root.winfo_children():
+            widget.destroy()
+
+    def login(self, role, username, password):
+        if role == "Teacher":
+            if username == TEACHER_CREDENTIALS["username"] and password == TEACHER_CREDENTIALS["password"]:
+                self.current_user = username
+                self.current_role = role
+                self.show_teacher_menu()
+            else:
+                messagebox.showerror("Error", "Invalid teacher credentials")
+        else:  # Student
+            if username in STUDENT_CREDENTIALS and password == STUDENT_CREDENTIALS[username]:
+                self.current_user = username
+                self.current_role = role
+                self.show_student_menu()
+            else:
+                messagebox.showerror("Error", "Invalid student ID or password")
+
+    def show_teacher_menu(self):
+        self.clear_window()
+        tk.Label(self.root, text="Teacher Menu", font=("Arial", 14)).pack(pady=10)
+        tk.Button(self.root, text="Register Student", command=self.register_student).pack(pady=5)
+        tk.Button(self.root, text="Mark Attendance", command=self.mark_attendance).pack(pady=5)
+        tk.Button(self.root, text="View Attendance", command=self.view_attendance_teacher).pack(pady=5)
+        tk.Button(self.root, text="Logout", command=self.setup_login_screen).pack(pady=5)
+
+    def show_student_menu(self):
+        self.clear_window()
+        tk.Label(self.root, text="Student Menu", font=("Arial", 14)).pack(pady=10)
+        tk.Button(self.root, text="View My Attendance", command=self.view_attendance_student).pack(pady=5)
+        tk.Button(self.root, text="Logout", command=self.setup_login_screen).pack(pady=5)
+
+    def register_student(self):
+        self.clear_window()
+        tk.Label(self.root, text="Register Student", font=("Arial", 14)).pack(pady=10)
+        
+        tk.Label(self.root, text="Student ID:").pack()
+        id_entry = tk.Entry(self.root)
+        id_entry.pack()
+        
+        tk.Label(self.root, text="Student Name:").pack()
+        name_entry = tk.Entry(self.root)
+        name_entry.pack()
+        
+        tk.Button(self.root, text="Register", command=lambda: self.save_student(id_entry.get(), name_entry.get())).pack(pady=10)
+        tk.Button(self.root, text="Back", command=self.show_teacher_menu).pack()
+
+    def save_student(self, student_id, name):
+        if not student_id or not name:
+            messagebox.showerror("Error", "Student ID and Name are required")
+            return
+        
+        try:
+            # Check for duplicate ID
+            if os.path.exists("students.txt"):
+                with open("students.txt", "r") as f:
+                    for line in f:
+                        if line.strip().split(",")[0] == student_id:
+                            messagebox.showerror("Error", "Student ID already exists")
+                            return
+            
+            # Append to students.txt
+            with open("students.txt", "a") as f:
+                f.write(f"{student_id},{name}\n")
+            # Update student credentials (for simplicity, password is student_id-based)
+            STUDENT_CREDENTIALS[student_id] = f"student{student_id}"
+            messagebox.showinfo("Success", "Student registered successfully")
+            self.show_teacher_menu()
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to register student: {str(e)}")
+
+    def mark_attendance(self):
+        self.clear_window()
+        tk.Label(self.root, text="Mark Attendance", font=("Arial", 14)).pack(pady=10)
+        
+        if not os.path.exists("students.txt"):
+            messagebox.showerror("Error", "No students registered")
+            self.show_teacher_menu()
+            return
+        
+        students = []
+        try:
+            with open("students.txt", "r") as f:
+                students = [line.strip().split(",") for line in f]
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to read students: {str(e)}")
+            self.show_teacher_menu()
+            return
+        
+        attendance_vars = {}
+        tk.Label(self.root, text="Select Attendance (P for Present, A for Absent):").pack()
+        for student_id, name in students:
+            tk.Label(self.root, text=f"{name} (ID: {student_id})").pack()
+            var = tk.StringVar(value="P")
+            attendance_vars[student_id] = var
+            frame = tk.Frame(self.root)
+            tk.Radiobutton(frame, text="Present", variable=var, value="P").pack(side=tk.LEFT)
+            tk.Radiobutton(frame, text="Absent", variable=var, value="A").pack(side=tk.LEFT)
+            frame.pack()
+        
+        tk.Button(self.root, text="Save Attendance", command=lambda: self.save_attendance(attendance_vars)).pack(pady=10)
+        tk.Button(self.root, text="Back", command=self.show_teacher_menu).pack()
+
+    def save_attendance(self, attendance_vars):
+        try:
+            date = datetime.now().strftime("%d-%m-%Y")
+            course = "ICT105"
+            with open("attendance.txt", "a") as f:
+                for student_id, status in attendance_vars.items():
+                    f.write(f"{date},{course},{student_id},{status.get()}\n")
+            messagebox.showinfo("Success", "Attendance saved successfully")
+            self.show_teacher_menu()
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to save attendance: {str(e)}")
+
+    def view_attendance_teacher(self):
+        self.clear_window()
+        tk.Label(self.root, text="View Attendance", font=("Arial", 14)).pack(pady=10)
+        
+        tk.Button(self.root, text="View All Records", command=self.view_all_attendance).pack(pady=5)
+        
+        tk.Label(self.root, text="View by Student ID:").pack()
+        id_entry = tk.Entry(self.root)
+        id_entry.pack()
+        tk.Button(self.root, text="Search", command=lambda: self.view_student_attendance(id_entry.get())).pack(pady=5)
+        
+        tk.Label(self.root, text="Filter by Date (DD-MM-YYYY):").pack()
+        date_entry = tk.Entry(self.root)
+        date_entry.pack()
+        tk.Button(self.root, text="Filter", command=lambda: self.filter_attendance_by_date(date_entry.get())).pack(pady=5)
+        
+        tk.Button(self.root, text="Back", command=self.show_teacher_menu).pack()
+
+    def view_all_attendance(self):
+        self.display_attendance()
+
+    def view_student_attendance(self, student_id):
+        if not student_id:
+            messagebox.showerror("Error", "Please enter a Student ID")
+            return
+        self.display_attendance(student_id=student_id)
+
+    def filter_attendance_by_date(self, date):
+        if not date:
+            messagebox.showerror("Error", "Please enter a date")
+            return
+        self.display_attendance(date=date)
+
+    def display_attendance(self, student_id=None, date=None):
+        self.clear_window()
+        tk.Label(self.root, text="Attendance Records", font=("Arial", 14)).pack(pady=10)
+        
+        if not os.path.exists("attendance.txt"):
+            tk.Label(self.root, text="No attendance records found").pack()
+            tk.Button(self.root, text="Back", command=self.view_attendance_teacher if self.current_role == "Teacher" else self.show_student_menu).pack()
+            return
+        
+        try:
+            text_area = tk.Text(self.root, height=10, width=50)
+            text_area.pack()
+            with open("attendance.txt", "r") as f:
+                for line in f:
+                    record = line.strip().split(",")
+                    if len(record) != 4:
+                        continue
+                    if (not student_id or record[2] == student_id) and (not date or record[0] == date):
+                        if self.current_role == "Student" and record[2] != self.current_user:
+                            continue
+                        text_area.insert(tk.END, f"Date: {record[0]}, Course: {record[1]}, ID: {record[2]}, Status: {record[3]}\n")
+            text_area.config(state="disabled")
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to read attendance: {str(e)}")
+        
+        tk.Button(self.root, text="Back", command=self.view_attendance_teacher if self.current_role == "Teacher" else self.show_student_menu).pack()
+
+    def view_attendance_student(self):
+        self.display_attendance(student_id=self.current_user)
+
+    def exit_program(self):
+        self.root.destroy()
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = AttendanceSystem(root)
+    root.protocol("WM_DELETE_WINDOW", app.exit_program)
+    root.mainloop()
