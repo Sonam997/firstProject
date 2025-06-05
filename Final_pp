@@ -2,12 +2,12 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 from datetime import datetime
 import os
-os.system("clear")
+os.system("Clear")
 
-# Predefined credentials for simplicity 
-TEACHER_CREDENTIALS = {"username": "lecturer", "password": "pass123"}
-# Format: {student_id: password}
-STUDENT_CREDENTIALS = {"0001": "student123", "0002":"student123", "0003":"student123"} 
+# Predefined credentials for simplicity (optional enhancement in assignment)
+TEACHER_CREDENTIALS = {"username": "teacher", "password": "pass123"}
+STUDENT_CREDENTIALS = {"0001": "student123"} 
+
 class AttendanceSystem:
     def __init__(self, root):
         self.root = root
@@ -21,8 +21,8 @@ class AttendanceSystem:
         tk.Label(self.root, text="Student Attendance System", font=("Arial", 16)).pack(pady=10)
         
         tk.Label(self.root, text="Select Role:").pack()
-        role_var = tk.StringVar(value="Lecturer")
-        tk.Radiobutton(self.root, text="Lecturer", variable=role_var, value="Lecturer").pack()
+        role_var = tk.StringVar(value="Teacher")
+        tk.Radiobutton(self.root, text="Teacher", variable=role_var, value="Teacher").pack()
         tk.Radiobutton(self.root, text="Student", variable=role_var, value="Student").pack()
         
         tk.Label(self.root, text="Username/ID:").pack()
@@ -40,13 +40,13 @@ class AttendanceSystem:
             widget.destroy()
 
     def login(self, role, username, password):
-        if role == "Lecturer":
+        if role == "Teacher":
             if username == TEACHER_CREDENTIALS["username"] and password == TEACHER_CREDENTIALS["password"]:
                 self.current_user = username
                 self.current_role = role
-                self.show_lecturer_menu()
+                self.show_teacher_menu()
             else:
-                messagebox.showerror("Error", "Invalid Lecturer credentials")
+                messagebox.showerror("Error", "Invalid teacher credentials")
         else:  # Student
             if username in STUDENT_CREDENTIALS and password == STUDENT_CREDENTIALS[username]:
                 self.current_user = username
@@ -55,9 +55,9 @@ class AttendanceSystem:
             else:
                 messagebox.showerror("Error", "Invalid student ID or password")
 
-    def show_lecturer_menu(self):
+    def show_teacher_menu(self):
         self.clear_window()
-        tk.Label(self.root, text="Lecturer Section", font=("Arial", 14)).pack(pady=10)
+        tk.Label(self.root, text="Teacher Section", font=("Arial", 14)).pack(pady=10)
         tk.Button(self.root, text="Register Student", command=self.register_student).pack(pady=5)
         tk.Button(self.root, text="Mark Attendance", command=self.mark_attendance).pack(pady=5)
         tk.Button(self.root, text="View Attendance", command=self.view_attendance_teacher).pack(pady=5)
@@ -82,7 +82,7 @@ class AttendanceSystem:
         name_entry.pack()
         
         tk.Button(self.root, text="Register", command=lambda: self.save_student(id_entry.get(), name_entry.get())).pack(pady=10)
-        tk.Button(self.root, text="Back", command=self.show_lecturer_menu).pack()
+        tk.Button(self.root, text="Back", command=self.show_teacher_menu).pack()
 
     def save_student(self, student_id, name):
         if not student_id or not name:
@@ -101,10 +101,10 @@ class AttendanceSystem:
             # Append to students.txt
             with open("students.txt", "a") as f:
                 f.write(f"{student_id},{name}\n")
-            # Update student credentials 
+            # Update student credentials (for simplicity, password is student_id-based)
             STUDENT_CREDENTIALS[student_id] = f"student{student_id}"
             messagebox.showinfo("Success", "Student registered successfully")
-            self.show_lecturer_menu()
+            self.show_teacher_menu()
         except Exception as e:
             messagebox.showerror("Error", f"Failed to register student: {str(e)}")
 
@@ -114,7 +114,7 @@ class AttendanceSystem:
         
         if not os.path.exists("students.txt"):
             messagebox.showerror("Error", "No students registered")
-            self.show_lecturer_menu()
+            self.show_teacher_menu()
             return
         
         students = []
@@ -123,7 +123,7 @@ class AttendanceSystem:
                 students = [line.strip().split(",") for line in f]
         except Exception as e:
             messagebox.showerror("Error", f"Failed to read students: {str(e)}")
-            self.show_lecturer_menu()
+            self.show_teacher_menu()
             return
         
         attendance_vars = {}
@@ -138,7 +138,7 @@ class AttendanceSystem:
             frame.pack()
         
         tk.Button(self.root, text="Save Attendance", command=lambda: self.save_attendance(attendance_vars)).pack(pady=10)
-        tk.Button(self.root, text="Back", command=self.show_lecturer_menu).pack()
+        tk.Button(self.root, text="Back", command=self.show_teacher_menu).pack()
 
     def save_attendance(self, attendance_vars):
         try:
@@ -148,11 +148,11 @@ class AttendanceSystem:
                 for student_id, status in attendance_vars.items():
                     f.write(f"{date},{course},{student_id},{status.get()}\n")
             messagebox.showinfo("Success", "Attendance saved successfully")
-            self.show_lecturer_menu()
+            self.show_teacher_menu()
         except Exception as e:
             messagebox.showerror("Error", f"Failed to save attendance: {str(e)}")
 
-    def view_attendance_lecturer(self):
+    def view_attendance_teacher(self):
         self.clear_window()
         tk.Label(self.root, text="View Attendance", font=("Arial", 14)).pack(pady=10)
         
@@ -168,7 +168,7 @@ class AttendanceSystem:
         date_entry.pack()
         tk.Button(self.root, text="Filter", command=lambda: self.filter_attendance_by_date(date_entry.get())).pack(pady=5)
         
-        tk.Button(self.root, text="Back", command=self.show_lecturer_menu).pack()
+        tk.Button(self.root, text="Back", command=self.show_teacher_menu).pack()
 
     def view_all_attendance(self):
         self.display_attendance()
@@ -191,7 +191,7 @@ class AttendanceSystem:
         
         if not os.path.exists("attendance.txt"):
             tk.Label(self.root, text="No attendance records found").pack()
-            tk.Button(self.root, text="Back", command=self.view_attendance_lecturer if self.current_role == "Lecturer" else self.show_student_menu).pack()
+            tk.Button(self.root, text="Back", command=self.view_attendance_teacher if self.current_role == "Teacher" else self.show_student_menu).pack()
             return
         
         try:
@@ -210,7 +210,7 @@ class AttendanceSystem:
         except Exception as e:
             messagebox.showerror("Error", f"Failed to read attendance: {str(e)}")
         
-        tk.Button(self.root, text="Back", command=self.view_attendance_lecturer if self.current_role == "Lecturer" else self.show_student_menu).pack()
+        tk.Button(self.root, text="Back", command=self.view_attendance_teacher if self.current_role == "Teacher" else self.show_student_menu).pack()
 
     def view_attendance_student(self):
         self.display_attendance(student_id=self.current_user)
@@ -223,3 +223,4 @@ if __name__ == "__main__":
     app = AttendanceSystem(root)
     root.protocol("WM_DELETE_WINDOW", app.exit_program)
     root.mainloop()
+
